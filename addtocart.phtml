@@ -75,58 +75,6 @@
         var stepQty = (parseInt('<?php echo $qtyIncrements; ?>') > 0) ? parseInt('<?php echo $qtyIncrements; ?>'): 1;
 
         pjQuery_1_10_2(document).ready(function(){
-            Product.ConfigurableSwatches.prototype.setStockDataOrigin = Product.ConfigurableSwatches.prototype.setStockData;
-            Product.ConfigurableSwatches.prototype.setStockData = function() {
-                var cartBtn = $$('.add-to-cart-buttons button.pac-button');
-                this._E.cartBtn = {
-                    btn: cartBtn,
-                    txt: cartBtn.invoke('readAttribute', 'title'),
-                    onclick: cartBtn.length ? cartBtn[0].getAttribute('onclick') : ''
-                };
-                this._E.availability = $$('p.availability');
-                // Set cart button event
-                this._E.cartBtn.btn.invoke('up').invoke('observe','mouseenter',function(){
-                    try {
-                        clearTimeout(this._N.resetTimeout);
-                        this.resetAvailableOptions();
-                    } catch (e) {
-                    }
-                }.bind(this));
-            };
-            Product.ConfigurableSwatches.prototype.setStockStatusOrigin = Product.ConfigurableSwatches.prototype.setStockStatus;
-            Product.ConfigurableSwatches.prototype.setStockStatus = function(inStock) {
-                if (inStock) {
-                    this._E.availability.each(function(el) {
-                        var el = pjQuery_1_10_2(el);
-                        el.addClass('in-stock').removeClass('out-of-stock');
-                        el.children().last().text(Translator.translate('In Stock'));
-                    });
-
-                    this._E.cartBtn.btn.each(function(el, index) {
-                        var el = pjQuery_1_10_2(el);
-                        el.disabled = false;
-                        el.removeClass('out-of-stock');
-                        el.attr('onclick', this._E.cartBtn.onclick);
-                        el.attr('title', '' + Translator.translate(this._E.cartBtn.txt[index]));
-                        el.contents().last().replaceWith(Translator.translate(this._E.cartBtn.txt[index]));
-                    }.bind(this));
-                } else {
-                    this._E.availability.each(function(el) {
-                        var el = pjQuery_1_10_2(el);
-                        el.addClass('out-of-stock').removeClass('in-stock');
-                        el.children().last().text(Translator.translate('Out of Stock'));
-                    });
-                    this._E.cartBtn.btn.each(function(el) {
-                        var el = pjQuery_1_10_2(el);
-                        el.addClass('out-of-stock');
-                        el.disabled = true;
-                        el.removeAttr('onclick');
-                        el.attr('title', Translator.translate('Out of Stock'));
-                        el.contents().last().replaceWith(Translator.translate('Out of Stock'));
-                    });
-                }
-            };
-            Product.ConfigurableSwatches.prototype.setStockData();
             var hl = pjQuery_1_10_2('.pacpr-add-to-cart-<?php echo $_product->getId() ?>');
             hl.each(function(){
                 if (pjQuery_1_10_2(this).parents('form').find('[name=qty]').length > 1) {
