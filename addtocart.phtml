@@ -1,0 +1,174 @@
+<?php
+/**
+ * Plumrocket Inc.
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the End-user License Agreement
+ * that is available through the world-wide-web at this URL:
+ * http://wiki.plumrocket.net/wiki/EULA
+ * If you are unable to obtain it through the world-wide-web, please
+ * send an email to support@plumrocket.com so we can send you a copy immediately.
+ *
+ * @package     Plumrocket_AjaxCart
+ * @copyright   Copyright (c) 2014 Plumrocket Inc. (http://www.plumrocket.com)
+ * @license     http://wiki.plumrocket.net/wiki/EULA  End-user License Agreement
+ */
+?>
+<?php
+    $_product = $this->getProduct();
+
+    $qty = max($this->getProductDefaultQty() * 1, 1);
+    $rQty = (int) $this->getRequest()->getParam('qty');
+    if (!$qty < $rQty) {
+        $qty = $rQty;
+    }
+    $qtyIncrements = (int)Mage::getModel('cataloginventory/stock_item')->loadByProduct($_product)->getQtyIncrements();
+
+    $wishlist = $this->getRequest()->getParam('wishlist');
+    $buttonType = ($wishlist && is_int($wishlist)) ? 'addwishlist' : $this->getButtonType();
+
+    switch ($buttonType) {
+        case 'updatecart' :
+            $buttonTitle = $this->__('Update Cart');
+            $onclick = 'ajaxCart.updateItemByForm(this.form);';
+            break;
+        case 'updatewishlist' :
+            $buttonTitle = $this->__('Update Item');
+            $onclick = 'ajaxCart.updateWishlistItemByForm(this.form);';
+            break;
+        case 'addwishlist' :
+            $buttonTitle = $this->__('Add to Cart');
+            $onclick = 'ajaxCart.addWishlistItemByForm(this.form);';
+            break;
+        default :
+            $buttonTitle = $this->__('Add to Cart');
+            $onclick = 'ajaxCart.addProductByForm(this.form, '.$_product->getId().');';
+    }
+
+?>
+<?php if($_product->isSaleable()): ?>
+    <div class="add-to-cart pacpr-add-to-cart-<?php echo $_product->getId() ?>">
+        <?php if ($wishlist) { ?>
+            <input type="hidden" name="item" value="<?php echo $wishlist; ?>" />
+        <?php } ?>
+        <?php if(!$_product->isGrouped()): ?>
+        <div class="qty-wrapper">
+            <label for="qty"><?php echo $this->__('Qty') ?>:</label>
+            <input type="text" pattern="\d*" name="qty" id="qty" maxlength="12" value="<?php echo $qty ?>" title="<?php echo $this->__('Qty') ?>" class="input-text qty" />
+            <div class="qty-buttons-wrapper">
+                <div class="qty-button increase" onclick="_ajaxQtyInc(this);"></div>
+                <div class="qty-button decrease" onclick="_ajaxQtyDec(this);"></div>
+            </div>
+        </div>
+        <?php endif; ?>
+        <div class="add-to-cart-buttons">
+            <button type="button" title="<?php echo $buttonTitle ?>" class="pac-button pac-product-button p-border-box ajaxcart-el pac-btn-cart pac-btn-cart-<?php echo $_product->getId() ?>" onclick="<?php echo $onclick ?>">
+                <span class="pac-label">
+                    <span class="pac-helper"></span><span class="pac-number"></span><img class="pac-icon" width="25" height="23" src="<?php echo $this->getSkinUrl('images/plumrocket/ajaxcart/pac-cart-icon.png');?>" alt=""><img class="pac-loader" width="22" height="22" src="<?php echo $this->getSkinUrl('images/plumrocket/ajaxcart/pac-loader.gif');?>" alt="">
+                </span><?php echo $buttonTitle ?>
+            </button>
+            <?php echo $this->getChildHtml('', true, true) ?>
+        </div>
+    </div>
+    <script type="text/javascript">
+        var stepQty = (parseInt('<?php echo $qtyIncrements; ?>') > 0) ? parseInt('<?php echo $qtyIncrements; ?>'): 1;
+
+        pjQuery_1_10_2(document).ready(function(){
+            Product.ConfigurableSwatches.prototype.setStockDataOrigin = Product.ConfigurableSwatches.prototype.setStockData;
+            Product.ConfigurableSwatches.prototype.setStockData = function() {
+                var cartBtn = $$('.add-to-cart-buttons button.pac-button');
+                this._E.cartBtn = {
+                    btn: cartBtn,
+                    txt: cartBtn.invoke('readAttribute', 'title'),
+                    onclick: cartBtn.length ? cartBtn[0].getAttribute('onclick') : ''
+                };
+                this._E.availability = $$('p.availability');
+                // Set cart button event
+                this._E.cartBtn.btn.invoke('up').invoke('observe','mouseenter',function(){
+                    try {
+                        clearTimeout(this._N.resetTimeout);
+                        this.resetAvailableOptions();
+                    } catch (e) {
+                    }
+                }.bind(this));
+            };
+            Product.ConfigurableSwatches.prototype.setStockStatusOrigin = Product.ConfigurableSwatches.prototype.setStockStatus;
+            Product.ConfigurableSwatches.prototype.setStockStatus = function(inStock) {
+                if (inStock) {
+                    this._E.availability.each(function(el) {
+                        var el = pjQuery_1_10_2(el);
+                        el.addClass('in-stock').removeClass('out-of-stock');
+                        el.children().last().text(Translator.translate('In Stock'));
+                    });
+
+                    this._E.cartBtn.btn.each(function(el, index) {
+                        var el = pjQuery_1_10_2(el);
+                        el.disabled = false;
+                        el.removeClass('out-of-stock');
+                        el.attr('onclick', this._E.cartBtn.onclick);
+                        el.attr('title', '' + Translator.translate(this._E.cartBtn.txt[index]));
+                        el.contents().last().replaceWith(Translator.translate(this._E.cartBtn.txt[index]));
+                    }.bind(this));
+                } else {
+                    this._E.availability.each(function(el) {
+                        var el = pjQuery_1_10_2(el);
+                        el.addClass('out-of-stock').removeClass('in-stock');
+                        el.children().last().text(Translator.translate('Out of Stock'));
+                    });
+                    this._E.cartBtn.btn.each(function(el) {
+                        var el = pjQuery_1_10_2(el);
+                        el.addClass('out-of-stock');
+                        el.disabled = true;
+                        el.removeAttr('onclick');
+                        el.attr('title', Translator.translate('Out of Stock'));
+                        el.contents().last().replaceWith(Translator.translate('Out of Stock'));
+                    });
+                }
+            };
+            Product.ConfigurableSwatches.prototype.setStockData();
+            var hl = pjQuery_1_10_2('.pacpr-add-to-cart-<?php echo $_product->getId() ?>');
+            hl.each(function(){
+                if (pjQuery_1_10_2(this).parents('form').find('[name=qty]').length > 1) {
+                    pjQuery_1_10_2(this).find('.qty-wrapper').remove();
+                }
+            });
+        });
+
+        function _ajaxQtyInc(e) {
+            var $input = pjQuery_1_10_2(e).parent().parent().find('input');
+            var oldValue = $input.val();
+            var newVal = 0;
+
+            if (isNaN(oldValue)) {
+                $input.css('color', 'red');
+            } else {
+                var x = Math.pow(10, 4 || 2);
+                newVal = (Math.round(parseFloat(oldValue) * x) + Math.round(stepQty * x)) / x;
+
+                $input.val(newVal);
+                $input.css('color', '');
+            }
+        };
+
+        function _ajaxQtyDec(e) {
+            var $input = pjQuery_1_10_2(e).parent().parent().find('input');
+            var oldValue = $input.val();
+            var newVal = 0;
+
+            var x = Math.pow(10, 4 || 2);
+            var cNewValue = (Math.round(parseFloat(oldValue) * x) - Math.round(stepQty * x)) / x;
+
+            if (isNaN(oldValue)) {
+                $input.css('color', 'red');
+            } else {
+                if (oldValue > 0 && cNewValue > 0) {
+                    newVal = cNewValue;
+                } else {
+                    newVal = stepQty;
+                }
+                $input.val(newVal);
+            }
+        };
+    </script>
+<?php endif; ?>
