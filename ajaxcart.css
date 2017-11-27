@@ -282,7 +282,7 @@
 	touch-action: manipulation;
 	background: #39C;
 	display: inline-block;
-	padding: 7px 6px 7px 40px;
+	padding: 4px 10px 4px 42px;
 	border: 0;
 	color: #FFF;
 	font-size: 13px;
@@ -298,6 +298,16 @@
 }
 
 .pac-btn-cart:hover{background: #2E8AB8;cursor: pointer;}
+
+.product-view button.pac-btn-cart.out-of-stock {
+	background-color: #b1b1b1;
+}
+.product-view button.pac-btn-cart.out-of-stock:hover {
+	background-color: #b9b9b9;
+}
+.product-view button.pac-btn-cart.out-of-stock .pac-label {
+	background-color: #898989;
+}
 
 .pac-btn-cart .pac-label {
 	position: absolute;
@@ -329,7 +339,7 @@
 }
 
 .pac-btn-cart .pac-label .pac-icon,
-.pac-btn-cart .pac-label .pac-loader {display: inline-block;}
+.pac-btn-cart .pac-label .pac-loader {display: inline-block; height:21px; width:21px;}
 
 .pac-btn-cart .pac-label .pac-number,
 .pac-btn-cart .pac-label .pac-loader {display: none;}
@@ -661,12 +671,13 @@
 #pac-popup-internal.pac-mode-2 .pac-item-total-related {width: 639px;}
 #pac-popup-internal.pac-mode-2 .product_info_holder {padding: 10px;}
 #pac-popup-internal.pac-mode-2 .pac-2-message {
-	padding: 6px 0; 
+	padding: 0 0 8px 0; 
 	border-bottom: 1px solid #dddddd;
-	font-size: 11px;
+	font-size: 14px;
 	text-transform: uppercase;
 	position: relative;
 }
+.fancybox_ajaxcart_cart_addinfo .fancybox-skin{ padding:10px 15px !important; border-radius: 0;}
 
 #pac-popup-internal.pac-mode-2 .pac-2-message .pac-sprite {
 	display: inline-block;
@@ -776,13 +787,16 @@
 	border-top: 1px solid #dddddd;
 	text-transform: uppercase;
 	padding: 5px 0;
+	font-weight:bold;
+	text-align:center;
+	font-size: 14px;
 }
 
 #pac-popup-internal.pac-mode-2 #pac-related-list .pac-products-hld {
 	position: relative;
 	width: 100%;
 	margin-top:16px; 
-	margin-bottom: 10px;
+	margin-bottom: 0;
 	overflow: hidden;
 	height: 208px;
 }
@@ -832,12 +846,11 @@
 
 #pac-popup-internal.pac-mode-2 #pac-related-list .pac-pname {
 	font-size: 14px;
-	text-transform: uppercase;
 	line-height: 16px;
 	height: 32px;
 	overflow: hidden;
 	width: 160px;
-	margin: 0 auto;
+	margin: 10px auto 0;
 }
 
 
@@ -1650,7 +1663,7 @@
     line-height: normal;
     border-bottom: 1px solid #e3e3e3;
     background: none;
-    padding: 0 0 8px 0;
+    padding: 0 0 10px 0;
     color: #636363;
     text-align: left;
     margin: 0 0 5px 0;
@@ -1663,12 +1676,12 @@
 .pac-panel-wrap .pac-panel-close {
     position: absolute;
     right: 0;
-    top: 2px;
-    font-size: 14px;
-    color: #D7D5D5;
+    top: 0px;
+    font-size: 26px;
+    color: #666;
     line-height: 14px;
     display: inline-block;
-    height: 14px;
+    height: 16px;
     cursor: pointer;
 }
 
